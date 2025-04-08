@@ -59,7 +59,29 @@ UserSchema.methods.isPasswordCorrect = async function (password) { // here metho
     return await bcrypt.compare(password, this.password); // here the password is the password entered by user and the this.password is the encrypted password
 };
 
-UserSchema.methods.generateAccessToken = function(){}
-UserSchema.methods.generateRefreshToken = function(){}
+UserSchema.methods.generateAccessToken = function(){
+    return jwt.sign({
+        _id: this._id,
+        email: this.email,
+        username: this.username,
+        fullname: this.fullname,
+    },
+    process.env.ACCESS_TOKEN_SECRET,
+    {
+        expiresIn: process.env.ACCESS_TOKEN_EXPIRY
+    }
+)
+}
+// HERE WE HAVE STUDIED HOW TO GENERATE ACCESS AND REFRESH TOKEN FOR THE USER
+UserSchema.methods.generateRefreshToken = function(){
+    return jwt.sign({
+        _id: this._id,
+    },
+    process.env.REFRESH_TOKEN_SECRET,
+    {
+        expiresIn: process.env.REFRESH_TOKEN_EXPIRY
+    }
+)
+}
 
 export const User = mongoose.model("User",UserSchema);
