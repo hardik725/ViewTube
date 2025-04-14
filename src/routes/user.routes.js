@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { registerUser,LoginUser, logoutUser } from "../controllers/user.controller.js";
+import { registerUser,LoginUser, logoutUser, refreshAccessToken } from "../controllers/user.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 // this is a middle which comes between the req and response given by the server
@@ -24,6 +24,8 @@ router.route("/login").post(LoginUser);
 
 // secured routes
 router.route("/logout").post(verifyJWT, logoutUser);
+
+router.route("/refresh-token").post(refreshAccessToken);
 
 
 export default router;

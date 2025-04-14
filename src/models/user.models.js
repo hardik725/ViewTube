@@ -85,3 +85,5 @@ UserSchema.methods.generateRefreshToken = function(){
 }
 
 export const User = mongoose.model("User",UserSchema);
+
+// what are the access Token and the Refresh Token for the user
