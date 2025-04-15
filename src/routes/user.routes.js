@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { registerUser,LoginUser, logoutUser, refreshAccessToken } from "../controllers/user.controller.js";
+import { registerUser,LoginUser, logoutUser, refreshAccessToken, changeCurrentUserPassword, getCurrentUser, updateUserAvatar, updateUserCoverImage } from "../controllers/user.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 // this is a middle which comes between the req and response given by the server
@@ -27,5 +27,18 @@ router.route("/logout").post(verifyJWT, logoutUser);
 
 router.route("/refresh-token").post(refreshAccessToken);
 
+router.route("/change-password").post(verifyJWT,changeCurrentUserPassword);
+
+router.route("/current-user").post(verifyJWT,getCurrentUser);
+
+router.route("update-avatar").patch(verifyJWT,
+    upload.single("avatar"
+    ),updateUserAvatar
+);
+
+router.route("update-coverImage").patch(verifyJWT,
+    upload.single("coverImage"
+    ),updateUserCoverImage
+);
 
 export default router;
