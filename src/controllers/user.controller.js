@@ -3,6 +3,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { User } from "../models/User.models.js";
 import { uploadOnCloudinary } from "../utils/cloudnary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
+import mongoose from "mongoose";
 
 
 // function to generate Access and Refresh Token
@@ -418,7 +419,86 @@ const getUserChannelProfile = asyncHandler(async (req,res) => {
     .json(
         new ApiResponse(200,channel[0],"User channel data fetched successfully")
     )
-})
+});
+
+const getWatchHistory = asyncHandler(async (req,res) => {
+    const user = await User.aggregate([
+        {
+            $match: {
+                _id: new mongoose.Types.ObjectId(req.user?._id) // here the mongoose dont work in aggregation pipeline so we have 
+                // use this approach to get the _id from the string that we get
+                // we get the user with matching _id here
+            }
+        },
+        {
+            $lookup: {
+                from: "videos",
+                localField: "watchHistory",
+                foreignField: "_id",
+                as: "watchHistory",
+                // here the array of watch history contains video file _id's which get replaced with object of the video files here
+
+                pipeline: [
+                    // now the further pipleine is applied to get the data of owner of the video file from users by sending user _id to users and getting the matching objects with the _id in user field
+                    {
+                    $lookup: {
+                        from: "users",
+                        localField: "owner",
+                        foreignField: "_id",
+                        as: "owner",
+                        pipeline: [
+                            {
+                                // we dont want all the data of user object so we use project to use some selected required data from the user
+                                $project: {
+                                    fullname: 1,
+                                    username: 1,
+                                    avatar: 1,
+                                }
+                            },
+                            {
+                                $addFields: {
+                                    owner: {
+                                        $first: "$owner"
+                                        // get the first object of the owner field that gets the owner data that we have projected
+
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                }
+            ]
+            }
+        },
+    ])
+    /*
+    [
+  {
+    _id: ..., // the matched user
+    ... // other user fields
+    watchHistory: [
+      {
+        _id: ..., // video ID
+        title: ..., // other video fields
+        owner:
+          {
+            _id: ..., // uploader's ID
+            fullname: ...,
+            username: ...,
+            avatar: ...,
+            email: ...
+          }
+      },
+      ...
+    ]
+  }
+] */
+return res.status(200)
+.json(
+    new ApiResponse(200,user,"User watch history has been fetched successfully.")
+)
+}) 
+
 export {registerUser,
     LoginUser,
     logoutUser,
@@ -428,5 +508,6 @@ export {registerUser,
     updateAccountDetails,
     updateUserAvatar,
     updateUserCoverImage,
-    getUserChannelProfile
+    getUserChannelProfile,
+    getWatchHistory,
 };
