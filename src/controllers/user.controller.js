@@ -261,10 +261,11 @@ const changeCurrentUserPassword = asyncHandler(async (req,res) => {
 const getCurrentUser = asyncHandler(async (req,res) => {
     const userId = req.user?._id;
     const user = await User.findById(userId);
+    console.log(userId);
 
     return res.status(200)
     .json(
-        200,user,"Current User fetched Successfully"
+       new ApiResponse(200,user,"Current User fetched Successfully")
     )
 });
 
@@ -293,23 +294,26 @@ const updateAccountDetails = asyncHandler(async (req,res) => {
 const updateUserAvatar = asyncHandler(async (req,res) => {
     const userId = req.user?._id;
 
-    const avatarLocalStorage = req.file?.path; // if we are taking multiple images then files if single then file
-    if(!avatarLocalStorage){
+    const newavatarLocalStorage = req.file?.path; // if we are taking multiple images then files if single then file
+    if(!newavatarLocalStorage){
         throw new ApiError(401,"Please enter a file for User Avatar");
-    } 
+    }
+    console.log(newavatarLocalStorage);
 
-    const avatar = await uploadOnCloudinary(avatarLocalStorage);
 
-    if(!avatar.url){
+    const avatar = await uploadOnCloudinary(newavatarLocalStorage);
+    console.log(avatar);
+
+    if(!avatar){
         throw new ApiError(401,"File is not uploaded on cloundinary");
     }
     // now the url that we recieve from the cloudinary is replaced with the avatar url in the database
-    const user = User.findByIdAndUpdate(userId,
+    const user = await User.findByIdAndUpdate(userId,
         { $set: 
             {avatar: avatar.url}
         },
         {new : true}
-    ).select("-password");
+    ).select("-password -refreshToken");
 
     return res
     .status(200)
@@ -328,16 +332,16 @@ const updateUserCoverImage = asyncHandler(async (req,res) => {
 
     const coverImage = await uploadOnCloudinary(coverImageLocalStorage);
 
-    if(!coverImage.url){
+    if(!coverImage){
         throw new ApiError(401,"File is not uploaded on cloundinary");
     }
     // now the url that we recieve from the cloudinary is replaced with the avatar url in the database
-    const user = User.findByIdAndUpdate(userId,
+    const user = await User.findByIdAndUpdate(userId,
         { $set: 
             {coverImage: coverImage.url}
         },
         {new : true}
-    ).select("-password");
+    ).select("-password -refreshToken");
 
     return res
     .status(200)
@@ -401,9 +405,9 @@ const getUserChannelProfile = asyncHandler(async (req,res) => {
                 fullname: 1,
                 email: 1,
                 username: 1,
-                subscribersCount: 1,
-                channelsSubscribedToCount: 1,
-                isSubscribed: 1,
+                // subscribersCount: 1,
+                // channelsSubscribedToCount: 1,
+                // isSubscribed: 1,
                 avatar: 1,
                 coverImage: 1,
             }
