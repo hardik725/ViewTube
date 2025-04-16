@@ -293,7 +293,7 @@ const updateAccountDetails = asyncHandler(async (req,res) => {
 const updateUserAvatar = asyncHandler(async (req,res) => {
     const userId = req.user?._id;
 
-    const avatarLocalStorage = req.file?.avatar[0]?.path; // if we are taking multiple images then files if single then file
+    const avatarLocalStorage = req.file?.path; // if we are taking multiple images then files if single then file
     if(!avatarLocalStorage){
         throw new ApiError(401,"Please enter a file for User Avatar");
     } 
@@ -321,7 +321,7 @@ const updateUserAvatar = asyncHandler(async (req,res) => {
 const updateUserCoverImage = asyncHandler(async (req,res) => {
     const userId = req.user?._id;
 
-    const coverImageLocalStorage = req.file?.coverImage[0]?.path; // if we are taking multiple images then files if single then file
+    const coverImageLocalStorage = req.file?.path; // if we are taking multiple images then files if single then file
     if(!coverImageLocalStorage){
         throw new ApiError(401,"Please enter a file for User Cover Image");
     } 

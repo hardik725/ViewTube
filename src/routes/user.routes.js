@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { registerUser,LoginUser, logoutUser, refreshAccessToken, changeCurrentUserPassword, getCurrentUser, updateUserAvatar, updateUserCoverImage } from "../controllers/user.controller.js";
+import { registerUser,LoginUser, logoutUser, refreshAccessToken, changeCurrentUserPassword, getCurrentUser, updateUserAvatar, updateUserCoverImage, getUserChannelProfile, getWatchHistory } from "../controllers/user.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 // this is a middle which comes between the req and response given by the server
@@ -31,14 +31,18 @@ router.route("/change-password").post(verifyJWT,changeCurrentUserPassword);
 
 router.route("/current-user").post(verifyJWT,getCurrentUser);
 
-router.route("update-avatar").patch(verifyJWT,
+router.route("/update-avatar").patch(verifyJWT,
     upload.single("avatar"
     ),updateUserAvatar
 );
 
-router.route("update-coverImage").patch(verifyJWT,
+router.route("/update-coverImage").patch(verifyJWT,
     upload.single("coverImage"
     ),updateUserCoverImage
 );
+
+router.route("/channeldata/:username").post(getUserChannelProfile);
+
+router.route("/UserWatchHistory").post(verifyJWT,getWatchHistory);
 
 export default router;
