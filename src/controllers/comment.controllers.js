@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { Comment } from "../models/comment.models.js";
 import { Video } from "../models/video.models.js";
 import { ApiError } from "../utils/ApiError.js";
@@ -60,4 +61,66 @@ const updateComment = asyncHandler(async (req,res) => {
     );
 });
 
-export {postComment,updateComment};
+// here we will get all the comments for a particular video
+const getAllCommentVideo = asyncHandler(async (req,res) => {
+    const {videoId} = req.params;
+    // now we will use pipleine to get all the comment for the video with owner name,username and avatar
+    const videoComment = await Comment.aggregate([
+        {
+           $match:{
+            video: new mongoose.Types.ObjectId(videoId)
+           } 
+        },
+        {
+            $lookup:{
+                from: "users",
+                foreignField: "_id",
+                localField: "owner",
+                as: "comment_users",
+            }
+        },
+        {
+            $unwind: "$comment_users",
+        },
+        {
+            $project: {
+                _id: 1,
+                fullname: "$comment_users.fullname",
+                username: "$comment_users.username",
+                avatar: "$comment_users.avatar",
+                content: 1,
+                createdAt: 1,
+            }
+        }
+    ]);
+
+    if(!videoComment){
+        throw new ApiError(401,"No comment was fetched for this video");
+    }
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(200,videoComment,"All comment for the video has been successfully fetched")
+    );
+});
+
+const deleteComment = asyncHandler(async (req,res) => {
+    const {commentId} = req.params;
+
+    // here we will search by id and delete
+    await Comment.findByIdAndDelete(commentId);
+
+    const check_comment = await Comment.findById(commentId);
+    if(check_comment){
+        throw new ApiError(401,"The Comment was not deleted");
+    }
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(200,{},"The comment was deleted Successfully")
+    );
+});
+
+export {postComment,updateComment,getAllCommentVideo,deleteComment};
