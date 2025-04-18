@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { Tweet } from "../models/tweet.models.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
@@ -33,16 +34,24 @@ const postTweet = asyncHandler(async (req,res) => {
 
 const getAllTweets = asyncHandler(async (req,res) => {
     // here we will get parameter of how many tweets we will get
-    const {page=1, limit=10} = req.params;
+    const {page=1, limit=10, userId} = req.query;
 
     // the number of tweets to be skipped
     const skipp = parseInt(page-1)*parseInt(limit);
 
-    const tweets = await Tweet
-    // .find()
-    // .skip(skipp)
-    // .limit(parseInt(limit))
-    .aggregate([
+    const pipeline = [];
+
+    // if user is mentioned then match the user with this
+    if(userId){
+        pipeline.push({
+            $match: {
+                owner: new mongoose.Types.ObjectId(userId)
+            }
+        })
+    }
+
+    // this is the default pipeline configuration
+    pipeline.push(
         {
             $skip: parseInt(skipp)
         },
@@ -68,7 +77,15 @@ const getAllTweets = asyncHandler(async (req,res) => {
                 avatar: "$user_details.avatar",
             }
         }
-    ])
+    );
+
+    const tweets = await Tweet
+    // .find()
+    // .skip(skipp)
+    // .limit(parseInt(limit))
+    .aggregate(
+        pipeline
+    );
     // now we are getting all the user data here
 
     if(!tweets){
@@ -83,4 +100,76 @@ const getAllTweets = asyncHandler(async (req,res) => {
 
 });
 
-export {postTweet,getAllTweets};
+
+// now we will write the code to update the already posted tweet
+
+const updateTweet = asyncHandler(async (req,res) => {
+    const {tweetId} = req.params;
+    const {content} = req.body;
+
+    if(!content){
+        throw new ApiError(401,"Please give some content to update the tweet");
+    }
+
+    // now we will find and update the tweet
+
+    const newtweet = await Tweet.findByIdAndUpdate(tweetId,
+        {
+            $set: {
+                content: content
+            }
+        },
+        {new: true}
+    )
+
+    if(!newtweet){
+        throw new ApiError(401,"Can't able to find the tweet");
+    }
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(200,"Tweet has been updated Successfully")
+    );
+});
+
+const deleteTweet = asyncHandler(async (req,res) => {
+    const {tweetId} = req.params;
+
+    await Tweet.findByIdAndDelete(tweetId);
+
+    const check = await Tweet.findById(tweetId);
+    if(check){
+        throw new ApiError(401,"Tweet was not deleted successfully");
+    }
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(200,"Tweet has been deleted Successfully")
+    );
+});
+
+const tweetByUserId = asyncHandler(async (req,res) => {
+    const userId = req.user?._id;
+
+    // now we will find the tweets of a particular user
+
+    const userTweets = await Tweet.aggregate([{
+        $match: {
+            owner: new mongoose.Types.ObjectId(userId)
+        }
+    }]);
+
+    if(!userTweets){
+        throw new ApiError(401,"Was not able to fetch the tweets of the users");
+    }
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(200,userTweets,"User Tweets successfully fetched")
+    );
+});
+
+export {postTweet,getAllTweets,updateTweet,deleteTweet,tweetByUserId};
