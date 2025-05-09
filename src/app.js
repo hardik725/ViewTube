@@ -41,6 +41,8 @@ import playlistRouter from "./routes/playlist.routes.js";
 
 import dashboardRouter from "./routes/dashboard.routes.js";
 
+import healthScoreRouter from "./routes/heatlhScore.routes.js";
+
 // routes declaration
 app.use("/api/v1/users",userRouter);
 app.use("/api/v1/subscription",subscriptionRouter);
@@ -50,5 +52,7 @@ app.use("/api/v1/comment",commentRouter);
 app.use("/api/v1/like",likeRouter);
 app.use("/api/v1/playlist",playlistRouter);
 app.use("/api/v1/dashboard",dashboardRouter);
+app.use("/api/v1/health",healthScoreRouter);
+
 
 export {app};
