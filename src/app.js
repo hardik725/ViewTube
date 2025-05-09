@@ -39,6 +39,8 @@ import likeRouter  from "./routes/like.routes.js";
 
 import playlistRouter from "./routes/playlist.routes.js";
 
+import dashboardRouter from "./routes/dashboard.routes.js";
+
 // routes declaration
 app.use("/api/v1/users",userRouter);
 app.use("/api/v1/subscription",subscriptionRouter);
@@ -47,5 +49,6 @@ app.use("/api/v1/tweet",tweetRouter);
 app.use("/api/v1/comment",commentRouter);
 app.use("/api/v1/like",likeRouter);
 app.use("/api/v1/playlist",playlistRouter);
+app.use("/api/v1/dashboard",dashboardRouter);
 
 export {app};
