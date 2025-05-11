@@ -11,9 +11,9 @@ app.use(cors({
 }));
 
 // it limit the size of file which we are getting and sending in server
-app.use(express.json({limit: "16kb"}));
+app.use(express.json({limit: "10mb"}));
 // this help to show convert small things like blank spaces and other things that are being sent in the server
-app.use(express.urlencoded({extended: true, limit: "16kb"}));
+app.use(express.urlencoded({extended: true, limit: "10mb"}));
 // static features are stored in our site
 app.use(express.static("public"));
 
