@@ -1,5 +1,4 @@
 import { Video } from "../models/video.models.js";
-import { Like } from "../models/like.models.js";
 import { Subscription } from "../models/subscription.models.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import mongoose from "mongoose";
