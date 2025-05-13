@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { Video } from "../models/video.models.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
@@ -231,20 +232,76 @@ const getAllVideos = asyncHandler(async (req,res) => {
     );
 });
 
-const getVideoById = asyncHandler(async (req,res) => {
-    const {videoId} = req.params;
+const getVideoById = asyncHandler(async (req, res) => {
+    const { videoId } = req.params;
 
-    // get the video by videoId
-    const video = await Video.findById(videoId);
-
-    if(!video){
-        throw new ApiError(401,"The video was not found in the Db");
+    if (!mongoose.Types.ObjectId.isValid(videoId)) {
+        throw new ApiError(400, "Invalid video ID");
     }
+
+    const video = await Video.aggregate([
+        {
+            $match: { _id: new mongoose.Types.ObjectId(videoId) }
+        },
+        {
+            $lookup: {
+                from: "comments",
+                let: { videoId: "$_id" },
+                pipeline: [
+                    { $match: { $expr: { $eq: ["$video", "$$videoId"] } } },
+                    {
+                        $lookup: {
+                            from: "users",
+                            localField: "owner",
+                            foreignField: "_id",
+                            as: "comment_owner"
+                        }
+                    },
+                    { $unwind: "$comment_owner" },
+                    {
+                        $project: {
+                            _id: 1,
+                            content: 1,
+                            commentcreated: "$createdAt",
+                            ownerId: "$comment_owner._id",
+                            owner: "$comment_owner.username",
+                            ownerAvatar: "$comment_owner.avatar"
+                        }
+                    }
+                ],
+                as: "comments"
+            }
+        },
+        {
+            $lookup: {
+                from: "likes",
+                localField: "_id",
+                foreignField: "video",
+                as: "likes"
+            }
+        },
+        {
+            $project: {
+                _id: 1,
+                videoFile: 1,
+                title: 1,
+                description: 1,
+                duration: 1,
+                views: 1,
+                comments: 1,
+                likes: 1
+            }
+        }
+    ]);
+
+    if (!video || video.length === 0) {
+        throw new ApiError(404, "The video was not found in the database");
+    }
+
     return res
-    .status(200)
-    .json(
-        new ApiResponse(200,video,"The requested video has been fetched successfully")
-    );
+        .status(200)
+        .json(new ApiResponse(200, video, "The requested video has been fetched successfully"));
 });
+
 
 export {uploadVideo,togglePublication,updateVideo,deleteVideo,getAllVideos,getVideoById};
