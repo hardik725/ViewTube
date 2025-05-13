@@ -27,7 +27,7 @@ router.route("/delete-video/:videoId").post(deleteVideo);
 
 router.route("/getVideo").post(getAllVideos);
 
-router.route("/getVideoById/:videoId").post(getVideoById);
+router.route("/getVideoById/:videoId").get(getVideoById);
 
 
 export default router;
