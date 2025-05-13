@@ -181,11 +181,44 @@ const getAllVideos = asyncHandler(async (req,res) => {
     
     const skipp = parseInt(page-1)*parseInt(limit);
 
-    const videos = await Video.find(filter)
-    .sort(sortOptions)
-    .skip(skipp)
-    .limit(parseInt(limit))
-    .lean();
+    const videos = await Video.aggregate([
+        {
+            $match: filter,
+        },
+        {
+            $sort: sortOptions,
+        },
+        {
+            $skip: skipp,
+        },
+        {
+            $limit: parseInt(limit),
+        },
+        {
+            $lookup: {
+                from: 'users',
+                foreignField: "_id",
+                localField: "owner",
+                as: "owner_details",
+            }
+        },
+        {
+            $unwind: "$owner_details",
+        },
+        {
+            $project: {
+                _id: 1,
+                thumbnail: 1,
+                title: 1,
+                description: 1,
+                duration: 1,
+                views: 1,
+                owner: "$owner_details.username",
+                avatar: "$owner_details.avatar",
+                user_id: "$owner_details._id",
+            }
+        }
+    ])
 
     if(!videos){
         throw new ApiError(401,"Videos can't be fetched due to error");
