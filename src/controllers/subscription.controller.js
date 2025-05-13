@@ -73,11 +73,14 @@ const channelSubscribers = asyncHandler(async (req,res) => {
             },
         },
         {
+            $unwind: "$subscribers_detail",
+        },
+        {
             $project: {
-                "subscribers_detail.fullname": 1,
-                "subscribers_detail.username": 1,
-                "subscribers_detail.email": 1,
-                "subscribers_detail.avatar": 1,
+                fullname: "$subscribers_detail.fullname",
+                username: "$subscribers_detail.username",
+                email: "$subscribers_detail.email",
+                avatar: "$subscribers_detail.avatar",
             }
         }
     ]);
@@ -109,11 +112,13 @@ const subChannel = asyncHandler(async (req,res) => {
             }
         },
         {
+            $unwind: "$subscribed_channel",
+        },
+        {
             $project: {
-                _id: 0,
+                _id: 1,
                 fullname: "$subscribed_channel.fullname",
                 username: "$subscribed_channel.username",
-                createdAt: "$subscribed_channel.createdAt",
                 avatar: "$subscribed_channel.avatar",
                 coverImage: "$subscribed_channel.coverImage",
             }
