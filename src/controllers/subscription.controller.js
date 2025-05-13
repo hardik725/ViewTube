@@ -111,11 +111,11 @@ const subChannel = asyncHandler(async (req,res) => {
         {
             $project: {
                 _id: 0,
-                "subscribed_channel.fullname": 1,
-                "subscribed_channel.username": 1,
-                "subscribed_channel.createdAt": 1,
-                "subscribed_channel.avatar": 1,
-                "subscribed_channel.coverImage": 1,
+                "$subscribed_channel.fullname": 1,
+                "$subscribed_channel.username": 1,
+                "$subscribed_channel.createdAt": 1,
+                "$subscribed_channel.avatar": 1,
+                "$subscribed_channel.coverImage": 1,
             }
         }
     ]);
