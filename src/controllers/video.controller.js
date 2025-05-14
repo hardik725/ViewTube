@@ -281,6 +281,17 @@ const getVideoById = asyncHandler(async (req, res) => {
             }
         },
         {
+            $lookup: {
+                from: "users",
+                foreignField: "_id",
+                localField: "owner",
+                as: "owner_data",
+            }
+        },
+        {
+            $unwind: "$owner_data",
+        },
+        {
             $project: {
                 _id: 1,
                 videoFile: 1,
@@ -289,7 +300,11 @@ const getVideoById = asyncHandler(async (req, res) => {
                 duration: 1,
                 views: 1,
                 comments: 1,
-                likes: 1
+                likes: 1,
+                owner_id: "$owner_data._id",
+                owner: "$owner_data.username",
+                owner_fullname: "$owner_data.fullname",
+                owner_avatar: "$owner_data.avatar",
             }
         }
     ]);
