@@ -232,6 +232,25 @@ const getAllVideos = asyncHandler(async (req,res) => {
     );
 });
 
+const increaseViewCount = asyncHandler(async (req, res) => {
+  const { videoId } = req.params;
+
+  const video = await Video.findByIdAndUpdate(
+    videoId,
+    { $inc: { views: 1 } },
+    { new: true }
+  );
+
+  if (!video) {
+    throw new ApiError(404, "Unable to update the views count");
+  }
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, video, "Views Updated Successfully"));
+});
+
+
 const getVideoById = asyncHandler(async (req, res) => {
     const { videoId } = req.params;
 
@@ -319,4 +338,4 @@ const getVideoById = asyncHandler(async (req, res) => {
 });
 
 
-export {uploadVideo,togglePublication,updateVideo,deleteVideo,getAllVideos,getVideoById};
+export {uploadVideo,togglePublication,updateVideo,deleteVideo,getAllVideos,getVideoById,increaseViewCount};
