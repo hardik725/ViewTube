@@ -450,30 +450,31 @@ const getWatchHistory = asyncHandler(async (req,res) => {
                         localField: "owner",
                         foreignField: "_id",
                         as: "owner",
-                        pipeline: [
-                            {
-                                // we dont want all the data of user object so we use project to use some selected required data from the user
-                                $project: {
-                                    fullname: 1,
-                                    username: 1,
-                                    avatar: 1,
-                                }
-                            },
-                            {
-                                $addFields: {
-                                    owner: {
-                                        $first: "$owner"
-                                        // get the first object of the owner field that gets the owner data that we have projected
-
-                                    }
-                                }
-                            }
-                        ]
-                    }
+                    },
+                    
+                },
+                {
+                    $unwind: "$owner"
                 }
             ]
             }
         },
+        {
+            $unwind: "$watchHistory",
+        },
+        {
+            $project: {
+                _id: "$watchHistory._id",
+                thumbnail: "$watchHistory.thumbnail",
+                title: "$watchHistory.title",
+                description: "$watchHistory.description",
+                duration: "$watchHistory.duration",
+                views: "$watchHistory.views",
+                owner: "$watchHistory.owner.username",
+                avatar: "$watchHistory.owner.avatar",
+                user_id: "$watchHistory.owner._id",
+            }
+        }
     ])
     /*
     [
