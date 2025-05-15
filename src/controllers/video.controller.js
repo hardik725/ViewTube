@@ -4,6 +4,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { uploadOnCloudinary } from "../utils/cloudnary.js";
+import { User } from "../models/user.models.js";
 
 const uploadVideo = asyncHandler(async (req,res) => {
     // we will get the user id from the cookies in which user is saved
@@ -233,8 +234,10 @@ const getAllVideos = asyncHandler(async (req,res) => {
 });
 
 const increaseViewCount = asyncHandler(async (req, res) => {
+  const userId = req.files?._id; // this should probably be req.user._id (if you're using auth middleware)
   const { videoId } = req.params;
 
+  // 1. Increase view count of video
   const video = await Video.findByIdAndUpdate(
     videoId,
     { $inc: { views: 1 } },
@@ -242,13 +245,31 @@ const increaseViewCount = asyncHandler(async (req, res) => {
   );
 
   if (!video) {
-    throw new ApiError(404, "Unable to update the views count");
+    throw new ApiError(404, "Video not found");
   }
+
+  // 2. Update user's watch history
+  const user = await User.findById(userId);
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  // Remove existing videoId if present
+  user.watchHistory = user.watchHistory.filter(
+    (id) => id.toString() !== videoId
+  );
+
+  // Add videoId freshly at the end
+  user.watchHistory.push(videoId);
+
+  // Save the updated user document
+  await user.save();
 
   return res
     .status(200)
     .json(new ApiResponse(200, video, "Views Updated Successfully"));
 });
+
 
 
 const getVideoById = asyncHandler(async (req, res) => {

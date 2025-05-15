@@ -29,7 +29,7 @@ router.route("/getVideo").post(getAllVideos);
 
 router.route("/getVideoById/:videoId").get(getVideoById);
 
-router.route("/incViewCound/:videoId").get(increaseViewCount);
+router.route("/incViewCound/:videoId").get(verifyJWT,increaseViewCount);
 
 router.route("/getChannelVideo").post(getChannelsVideo);
 
