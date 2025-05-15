@@ -234,7 +234,7 @@ const getAllVideos = asyncHandler(async (req,res) => {
 });
 
 const increaseViewCount = asyncHandler(async (req, res) => {
-  const userId = req.files?._id; // this should probably be req.user._id (if you're using auth middleware)
+  const userId = req.user?._id; // this should probably be req.user._id (if you're using auth middleware)
   const { videoId } = req.params;
 
   // 1. Increase view count of video
