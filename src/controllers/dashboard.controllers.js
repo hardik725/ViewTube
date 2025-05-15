@@ -26,10 +26,19 @@ const getChannelStats = asyncHandler(async(req,res) => {
                 },
             },
             {
+                $lookup: {
+                    from: "comments",
+                    localField: "_id",
+                    foreignField: "video",
+                    as: "total_comments",
+                },
+            },
+            {
                 $project: {
                     _id: 1,
                     views: 1, 
-                    likeCount: { $size: "$total_Likes"}
+                    likeCount: { $size: "$total_Likes"},
+                    commentCount: { $size: "$total_comments"}
                 }
             }
             // till here we get the like Count of each video after this we want to sum
@@ -39,6 +48,7 @@ const getChannelStats = asyncHandler(async(req,res) => {
                     _id: null,
                     totalLikes: { $sum: "$likeCount"},
                     totalViews: { $sum: "$views"},
+                    totalComments: { $sum: "$commentCount"},
                     videoCount: { $sum: 1},
                     // this will add one each time summation is happining while grouping
                 }
@@ -48,6 +58,7 @@ const getChannelStats = asyncHandler(async(req,res) => {
                     _id: 0,
                     totalLikes: 1,
                     totalViews: 1,
+                    totalComments: 1,
                     videoCount: 1,
                 }
             }
