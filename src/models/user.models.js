@@ -34,10 +34,12 @@ const UserSchema = new mongoose.Schema(
         coverImage: {
             type: String,
         },
-        watchHistory: {
+        watchHistory: [
+          {
             type: mongoose.Schema.Types.ObjectId,
             ref: "Video",
-        },
+          },
+        ],
         password: { // here the password should be encrypted so that in case of data leak it is protected
             type: String,
             required: [true,'Password is required to be entered'],
