@@ -337,5 +337,56 @@ const getVideoById = asyncHandler(async (req, res) => {
         .json(new ApiResponse(200, video, "The requested video has been fetched successfully"));
 });
 
+const getChannelsVideo = asyncHandler(async (req, res) => {
+    const { channels } = req.body;
 
-export {uploadVideo,togglePublication,updateVideo,deleteVideo,getAllVideos,getVideoById,increaseViewCount};
+    if (!Array.isArray(channels) || channels.length === 0) {
+        return res.status(400).json({ message: "Channels list is empty or invalid." });
+    }
+
+    const results = await Promise.all(
+        channels.map(async (channelId) => {
+            const vids = await Video.aggregate([
+                {
+                    $match: {
+                        owner: new mongoose.Types.ObjectId(channelId)
+                    },
+                },
+        {
+            $limit: 3,
+        },
+        {
+            $lookup: {
+                from: 'users',
+                foreignField: "_id",
+                localField: "owner",
+                as: "owner_details",
+            }
+        },
+        {
+            $unwind: "$owner_details",
+        },
+        {
+            $project: {
+                _id: 1,
+                thumbnail: 1,
+                title: 1,
+                description: 1,
+                duration: 1,
+                views: 1,
+                owner: "$owner_details.username",
+                avatar: "$owner_details.avatar",
+                user_id: "$owner_details._id",
+            }
+        }
+            ]);
+            return { channelId, videos: vids };
+        })
+    );
+
+    res.status(200).json({ data: results });
+});
+
+
+
+export {uploadVideo,togglePublication,updateVideo,deleteVideo,getAllVideos,getVideoById,increaseViewCount,getChannelsVideo};
