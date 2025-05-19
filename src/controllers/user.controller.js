@@ -269,27 +269,58 @@ const getCurrentUser = asyncHandler(async (req,res) => {
     )
 });
 
-const updateAccountDetails = asyncHandler(async (req,res) => {
-    const {fullname,email} = req.body;
+const updateAccountDetails = asyncHandler(async (req, res) => {
+    const { fullname, email, username } = req.body;
 
-    if([fullname,email].some((item) => item?.trim === "")){
-        throw new ApiError(401,"All fields need to be filled");
+    if (
+        (!fullname || fullname.trim() === "") &&
+        (!email || email.trim() === "") &&
+        (!username || username.trim() === "")
+    ) {
+        throw new ApiError(400, "At least one field must be filled");
     }
-    const userId = req.user?._id;
-    const user = await User.findByIdAndUpdate(userId,
-        { // HERE WE WILL WRITE THE UPDATES THAT NEEDS TO BE DONE
-            $set: {fullname: fullname,
-                email: email
-            }
-        },
-        {new: true} // it  will return the updated field to us
-    ).select("-password") // here the password is not returned after doing this;
 
-    return res.status(200)
-    .json(
-        new ApiResponse(200,user,"Account details updated successfully")
+    const userId = req.user?._id;
+    const user = await User.findById(userId);
+    if (!user) {
+        throw new ApiError(404, "User not found");
+    }
+
+    // Check email uniqueness
+    if (email && email.trim() !== "" && email.trim() !== user.email) {
+        const existingUserWithEmail = await User.findOne({ email: email.trim() });
+        if (existingUserWithEmail && existingUserWithEmail._id.toString() !== userId.toString()) {
+            throw new ApiError(400, "Email is already in use");
+        }
+        const hasDomain = /@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/.test(email);
+        if (!hasDomain) {
+            throw new ApiError(400, "Please provide a valid email address");
+        }
+        user.email = email.trim();
+    }
+
+    // Check username uniqueness
+    if (username && username.trim() !== "" && username.trim() !== user.username) {
+        const existingUserWithUsername = await User.findOne({ username: username.trim() });
+        if (existingUserWithUsername && existingUserWithUsername._id.toString() !== userId.toString()) {
+            throw new ApiError(400, "Username is already taken");
+        }
+        user.username = username.trim();
+    }
+
+    // Update fullname
+    if (fullname && fullname.trim() !== "") {
+        user.fullname = fullname.trim();
+    }
+
+    await user.save();
+
+    return res.status(200).json(
+        new ApiResponse(200, user, "Account details updated successfully")
     );
-})
+});
+
+
 
 const updateUserAvatar = asyncHandler(async (req,res) => {
     const userId = req.user?._id;
