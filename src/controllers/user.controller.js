@@ -281,7 +281,7 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
     }
 
     const userId = req.user?._id;
-    const user = await User.findById(userId);
+    const user = await User.findById(userId).select("-password");
     if (!user) {
         throw new ApiError(404, "User not found");
     }
@@ -314,6 +314,8 @@ const updateAccountDetails = asyncHandler(async (req, res) => {
     }
 
     await user.save();
+
+    user.select("-password");
 
     return res.status(200).json(
         new ApiResponse(200, user, "Account details updated successfully")
