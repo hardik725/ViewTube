@@ -43,7 +43,7 @@ router.route("/update-coverImage").patch(verifyJWT,
     ),updateUserCoverImage
 );
 
-router.route("/channeldata/:username").post(getUserChannelProfile);
+router.route("/channeldata/:username").post(verifyJWT,getUserChannelProfile);
 
 router.route("/UserWatchHistory").post(verifyJWT,getWatchHistory);
 
