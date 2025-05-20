@@ -110,15 +110,33 @@ const getVideos = asyncHandler(async(req,res)=> {
                 foreignField: "_id",
                 localField: "video",
                 as: "all_videos",
+                pipeline: [{
+                    $lookup: {
+                        from: "users",
+                        foreignField: "_id",
+                        localField: "owner",
+                        as: "owner",
+                    }
+                },
+            {
+            $unwind: "$owner",
+            }]
             }
+        },
+        {
+            $unwind: "$all_videos",
         },
         {
             $project:{
                 _id: 1,
-                video: "$all_videos.videoFile",
+                thumbnail: "$all_videos.thumbnail",
                 title: "$all_videos.title",
                 description: "$all_videos.description",
-                duration: "$all_videos.duration"
+                duration: "$all_videos.duration",
+                views: "$all_videos.views",
+                owner: "$owner_details.owner.username",
+                avatar: "$owner_details.owner.avatar",
+                user_id: "$owner_details.owner._id",
             }
         }
     ]
