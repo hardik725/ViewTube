@@ -137,6 +137,7 @@ const getVideos = asyncHandler(async(req,res)=> {
                 owner: "$all_videos.owner.username",
                 avatar: "$all_videos.owner.avatar",
                 user_id: "$all_videos.owner._id",
+                createdAt: 1,
             }
         }
     ]
