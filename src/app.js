@@ -6,7 +6,7 @@ const app = express();
 
 // helps to control from where and how the backend can interact with the frontend
 app.use(cors({
-    origin: process.env.CORS_ORIGIN,
+    origin: true,
     credentials: true
 }));
 
