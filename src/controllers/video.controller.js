@@ -171,7 +171,7 @@ const getAllVideos = asyncHandler(async (req,res) => {
 
     // now if we have a userId then
     if(userId){
-        filter.owner = userId; 
+        filter.owner = new mongoose.Types.ObjectId(userId); 
     }
 
     // now the sortBy method
