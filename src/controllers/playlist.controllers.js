@@ -8,7 +8,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 const createPlaylist = asyncHandler(async(req,res)=> {
     const userId = req.user?._id;
     // here we will take the title and description for the playlist
-    const {name,description} = req.body;
+    const {name,description,isPublic} = req.body;
 
     const newPlaylist = await Playlist.create({
         owner: userId,
