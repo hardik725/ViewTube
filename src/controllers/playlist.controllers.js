@@ -13,7 +13,8 @@ const createPlaylist = asyncHandler(async(req,res)=> {
     const newPlaylist = await Playlist.create({
         owner: userId,
         name: name,
-        description: description
+        description: description,
+        isPublic: isPublic,
     });
 
     // check if playlist is created or not
