@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { Playlist } from "../models/playlist.models.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
@@ -34,9 +35,43 @@ const createPlaylist = asyncHandler(async(req,res)=> {
 const userPlaylist = asyncHandler(async(req,res)=> {
     const {userId} = req.params;
 
-    const reqPlaylist = await Playlist.find({
-        owner: userId
-    });
+    const reqPlaylist = await Playlist.aggregate([
+        {
+            $match: {
+                owner: new mongoose.Types.ObjectId(userId)
+            }
+        },
+        {
+            $lookup: {
+                from: "videos",
+                foreignField: "_id",
+                localField: "videos",
+                as: "playlist_videos",
+                pipeline: [{
+                    $project: {
+                        _id: 1,
+                        thumbnail: 1,
+                        duration: 1,
+                    }
+                }]
+            },
+        },
+        {
+            $project: {
+                _id: 1,
+                owner: 1,
+                name: 1,
+                description: 1,
+                isPublic: 1,
+                createdAt:1,
+                updatedAt: 1,
+                playlist_videos: 1,
+                totalDuration: {
+                    $sum: "$playlist_videos.duration"
+                }
+            }
+        }
+    ])
 
     if(!reqPlaylist){
         throw new ApiError(401,"Failed to fetch the Users Playlist");
