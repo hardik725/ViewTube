@@ -528,7 +528,23 @@ return res.status(200)
 .json(
     new ApiResponse(200,user,"User watch history has been fetched successfully.")
 )
-}) 
+})
+
+const editBio = asyncHandler(async(req,res) => {
+    const {bio} = req.body;
+    const userId = req.user?._id;
+    const user = await User.findById(userId);
+    if(!user){
+        throw new ApiError(404,"Unable to find the User");
+    }
+    user.bio = bio;
+    user.save();
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(201,user,"User Bio has been Successfully Updated")
+    );
+});
 
 export {registerUser,
     LoginUser,
@@ -541,4 +557,5 @@ export {registerUser,
     updateUserCoverImage,
     getUserChannelProfile,
     getWatchHistory,
+    editBio
 };

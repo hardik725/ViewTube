@@ -34,6 +34,11 @@ const UserSchema = new mongoose.Schema(
         coverImage: {
             type: String,
         },
+        bio: {
+            type: String, // supports multiline text with line breaks (\n)
+            trim: true,
+            default: "",
+        },        
         watchHistory: [
           {
             type: mongoose.Schema.Types.ObjectId,
