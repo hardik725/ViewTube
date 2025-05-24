@@ -16,7 +16,7 @@ const postTweet = asyncHandler(async (req,res) => {
 
     // now create a new Tweet with the data for the field
 
-    const newTweet = Tweet.create({
+    const newTweet = await Tweet.create({
         owner: userId,
         content: content,
     });
