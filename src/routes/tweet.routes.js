@@ -8,7 +8,7 @@ router.route("/post").post(verifyJWT,
     postTweet
 );
 
-router.route("/getAllTweets").post(getAllTweets);
+router.route("/getAllTweets").get(getAllTweets);
 
 router.route("/update/:tweetId").post(updateTweet);
 
