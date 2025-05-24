@@ -76,6 +76,7 @@ const getAllTweets = asyncHandler(async (req,res) => {
                 pipeline: [
                     {
                         $project: {
+                            _id: 0,
                             owner: 1,
                         }
                     }
