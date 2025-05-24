@@ -67,6 +67,21 @@ const getAllTweets = asyncHandler(async (req,res) => {
                 as: "user_details",
             }
         },
+        {
+            $lookup: {
+                from: "likes",
+                foreignField: "tweet",
+                localField: "_id",
+                as: "user_liked",
+                pipeline: [
+                    {
+                        $project: {
+                            owner: 1,
+                        }
+                    }
+                ]
+            },
+        },
         { $unwind: "$user_details" }, // So we can access the fields directly
         {
             $project: {
@@ -75,6 +90,7 @@ const getAllTweets = asyncHandler(async (req,res) => {
                 fullname: "$user_details.fullname",
                 username: "$user_details.username",
                 avatar: "$user_details.avatar",
+                likes: "$user_liked"
             }
         }
     );
