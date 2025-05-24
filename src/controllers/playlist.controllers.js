@@ -193,6 +193,7 @@ const getPlaylistData = asyncHandler(async (req,res) => {
                         $project: {
                             _id: 1,
                             thumbnail: 1,
+                            title: 1,
                             duration: 1,
                         }
                     }
