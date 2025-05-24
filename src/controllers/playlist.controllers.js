@@ -172,4 +172,57 @@ const updatePlaylist = asyncHandler(async(req,res)=> {
     );
 });
 
-export {createPlaylist,addToPlaylist,userPlaylist,removeVideo,removePlaylist,updatePlaylist};
+// get playList Data
+const getPlaylistData = asyncHandler(async (req,res) => {
+    const {playlistId} = req.params;
+
+    const playlist = await Playlist.aggregate([
+        {
+            $match: {
+                _id: new mongoose.Types.ObjectId(playlistId),
+            }
+        },
+        {
+            $lookup: {
+                from: "videos",
+                localField: "videos",
+                foreignField: "_id",
+                as: "videos_details",
+                pipeline: [
+                    {
+                        $project: {
+                            _id: 1,
+                            thumbnail: 1,
+                            duration: 1,
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            $project: {
+                _id: 1,
+                owner: 1,
+                name: 1,
+                description: 1,
+                isPublic: 1,
+                createdAt:1,
+                updatedAt: 1,
+                videos_details: 1,
+                totalDuration: {
+                    $sum: "$videos_details.duration"
+                }
+            }
+        }
+    ]);
+    if(!playlist){
+        throw new ApiError(404,"Unable to find the playlist needed to show");
+    }
+    return res.
+    status(200)
+    .json(
+        new ApiResponse(201,playlist,"Playlist Data fetched")
+    );
+});
+
+export {createPlaylist,addToPlaylist,userPlaylist,removeVideo,removePlaylist,updatePlaylist,getPlaylistData};
