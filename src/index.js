@@ -27,7 +27,7 @@ io.on("connection", (socket) => {
     io.emit("recievedMessage",message);
   });
 
-  socket.on("disconnect", (socket) => {
+  socket.on("disconnect", () => {
     console.log("UserId disconnect is: ",socket.id);
   });
 });
