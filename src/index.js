@@ -11,38 +11,27 @@ dotenv.config({
 const server = http.createServer(app);
 
 const io = new Server(server, {
-    cors: {
-        origin: true,
-        credentials: true,
-    }
+  cors: {
+    origin: ["http://localhost:5173"],
+    methods: ["GET","POST"],
+  },
 });
 
-const userSocketMap = new Map(); // Map<userId, socketId>
 
 io.on("connection", (socket) => {
   console.log("A user connected:", socket.id);
 
   // Listen for a user to register their userId
-  socket.on("register", (userId) => {
-    userSocketMap.set(userId, socket.id);
-    console.log(`User ${userId} registered with socket ${socket.id}`);
+  socket.on("sendMessage", (message) => {
+    console.log("The sent Message is: ",message);
+    io.emit("recievedMessage",message);
   });
 
-  socket.on("disconnect", () => {
-    for (const [userId, id] of userSocketMap.entries()) {
-      if (id === socket.id) {
-        userSocketMap.delete(userId);
-        break;
-      }
-    }
-    console.log("User disconnected:", socket.id);
+  socket.on("disconnect", (socket) => {
+    console.log("UserId disconnect is: ",socket.id);
   });
 });
 
-// Make this map available where needed (optional)
-app.set("userSocketMap", userSocketMap);
-
-app.set("io",io);
 
 connectDB()
 .then(() => {
