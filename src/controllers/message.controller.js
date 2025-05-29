@@ -30,8 +30,8 @@ const getMessage = asyncHandler(async (req,res) => {
     const messages = await Message.find({
         $or:
         [
-            {senderId: userId , recieverID: channelId},
-            {senderId: channelId, recieverID: userId}
+            {sender: userId , reciever: channelId},
+            {sender: channelId, reciever: userId}
         ]
     }).sort({createdAt: 1});
     return res.
