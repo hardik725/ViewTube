@@ -1,5 +1,6 @@
 import express from "express";
-import { sendMessage } from "../controllers/message.controller.js";
+import { getMessage, sendMessage } from "../controllers/message.controller.js";
+import { verifyJWT } from "../middlewares/auth.middleware.js";
 
 const router = express.Router();
 
@@ -9,5 +10,7 @@ router.post("/sendMessage", (req, res, next) => {
   req.io = req.app.get("io");
   sendMessage(req, res, next);
 });
+
+router.route("/getMessages/:channelId").post(verifyJWT,getMessage);
 
 export default router;

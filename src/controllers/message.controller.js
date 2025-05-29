@@ -31,5 +31,23 @@ const sendMessage = asyncHandler(async (req, res) => {
     .json(new ApiResponse(201, newMessage, "Message was sent Successfully"));
 });
 
+const getMessage = asyncHandler(async (req,res) => {
+    const userId = req.user?.id;
+    const {channelId} = req.params;
 
-export { sendMessage };
+    const messages = await Message.find({
+        $or:
+        [
+            {senderId: userId , recieverID: channelId},
+            {senderId: channelId, recieverID: userId}
+        ]
+    }).sort({createdAt: 1});
+    return res.
+    status(200)
+    .json(
+        new ApiResponse(201,messages,"Messages has been fetched successfully")
+    )
+});
+
+
+export { sendMessage, getMessage };
