@@ -17,6 +17,31 @@ const io = new Server(server, {
     }
 });
 
+const userSocketMap = new Map(); // Map<userId, socketId>
+
+io.on("connection", (socket) => {
+  console.log("A user connected:", socket.id);
+
+  // Listen for a user to register their userId
+  socket.on("register", (userId) => {
+    userSocketMap.set(userId, socket.id);
+    console.log(`User ${userId} registered with socket ${socket.id}`);
+  });
+
+  socket.on("disconnect", () => {
+    for (const [userId, id] of userSocketMap.entries()) {
+      if (id === socket.id) {
+        userSocketMap.delete(userId);
+        break;
+      }
+    }
+    console.log("User disconnected:", socket.id);
+  });
+});
+
+// Make this map available where needed (optional)
+app.set("userSocketMap", userSocketMap);
+
 app.set("io",io);
 
 connectDB()
