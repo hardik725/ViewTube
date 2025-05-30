@@ -74,7 +74,7 @@ const updateMessage = asyncHandler(async (req,res) => {
 
     return res
     .status(200)
-    .josn(
+    .json(
         new ApiResponse(201,message,"The message has been updated Successfully.")
     )
 });
