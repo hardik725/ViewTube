@@ -57,6 +57,27 @@ const deleteMessage = asyncHandler(async (req, res) => {
     );
 });
 
+const updateMessage = asyncHandler(async (req,res) => {
+    const {messageId} = req.params;
+    const {content} = req.body;
+
+    const message = await Message.findByIdAndUpdate(messageId,{
+        $set:{
+            content: content,
+        }
+    },
+    {new: true});
+
+    if(!message){
+        throw new ApiError(404,"Not able to search the Message");
+    }
+
+    return res
+    .status(200)
+    .josn(
+        new ApiResponse(201,message,"The message has been updated Successfully.")
+    )
+});
 
 
-export { sendMessage, getMessage, deleteMessage };
+export { sendMessage, getMessage, deleteMessage, updateMessage };
