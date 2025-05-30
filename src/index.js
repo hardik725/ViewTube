@@ -27,6 +27,16 @@ io.on("connection", (socket) => {
     io.emit("recievedMessage",message);
   });
 
+  socket.on("deleteMessage",(message) => {
+    console.log("The delete Message is: ",message);
+    io.emit("rdeletedMessage",message);
+  });
+
+  socket.on("updateMessage",(message) => {
+    console.log("The updated Message is: ",message);
+    io.emit("rupdatedMessage",message);
+  })
+
   socket.on("disconnect", () => {
     console.log("UserId disconnect is: ",socket.id);
   });
