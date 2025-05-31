@@ -37,6 +37,11 @@ io.on("connection", (socket) => {
     io.emit("rupdatedMessage",message);
   })
 
+  socket.on("typing",(convo) => {
+    console.log("The convo is between: ",convo);
+    io.emit("usertyping",convo);
+  })
+
   socket.on("disconnect", () => {
     console.log("UserId disconnect is: ",socket.id);
   });
