@@ -42,6 +42,11 @@ io.on("connection", (socket) => {
     io.emit("usertyping",convo);
   })
 
+  socket.on("notification",(msg) => {
+    console.log("The type of notification is: ",msg);
+    io.emit("rnotification",msg);
+  })
+
   socket.on("disconnect", () => {
     console.log("UserId disconnect is: ",socket.id);
   });

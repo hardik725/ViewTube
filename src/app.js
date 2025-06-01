@@ -45,6 +45,7 @@ import healthScoreRouter from "./routes/heatlhScore.routes.js";
 
 import messageRouter from "./routes/message.routes.js";
 
+import notificationRouter from "./routes/notification.routes.js";
 // routes declaration
 app.use("/api/v1/users",userRouter);
 app.use("/api/v1/subscription",subscriptionRouter);
@@ -56,6 +57,7 @@ app.use("/api/v1/playlist",playlistRouter);
 app.use("/api/v1/dashboard",dashboardRouter);
 app.use("/api/v1/health",healthScoreRouter);
 app.use("/api/v1/message",messageRouter);
+app.use("/api/v1/notification",notificationRouter);
 
 
 export {app};
