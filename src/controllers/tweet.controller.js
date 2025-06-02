@@ -91,6 +91,7 @@ const getAllTweets = asyncHandler(async (req,res) => {
                 fullname: "$user_details.fullname",
                 username: "$user_details.username",
                 avatar: "$user_details.avatar",
+                ownerId: "$user_details._id", 
                 likes: "$user_liked"
             }
         }
