@@ -2,6 +2,7 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import axios from "axios";
+import fs from "fs-extra";
 
 const baseUrl = "https://api.assemblyai.com";
 const headers = {
@@ -9,16 +10,14 @@ const headers = {
 };
 
 const uploadAudio = asyncHandler(async (req, res) => {
-  const audioBuffer = req.file?.path;
-  if (!audioBuffer) throw new ApiError(400, "No audio file uploaded");
+  const audioPath = req.file?.path;
+  const audioData = await fs.readFile(audioPath);
+  if (!audioData) throw new ApiError(400, "No audio file uploaded");
 
-  // Upload to AssemblyAI
-  const uploadRes = await axios.post(`${baseUrl}/v2/upload`, audioBuffer, {
-    headers: {
-      ...headers,
-      "Content-Type": "application/octet-stream",
-    },
-  });
+//   Upload to AssemblyAI
+    const uploadResponse = await axios.post(`${baseUrl}/v2/upload`, audioData, {
+        headers,
+    });
 
   const audioUrl = uploadRes.data.upload_url;
 
