@@ -162,12 +162,15 @@ const getAllVideos = asyncHandler(async (req,res) => {
     const filter = {};
 
     // now we will search for the objects having the query in there title or description
-    if(query){
-        filter.$or = [
-            {title: {$regex: query , $options: 'i'}},
-            {description: {$regex: query, $options: 'i'}}
-        ]
-    }
+if (query) {
+    const tokens = query.trim().split(/\s+/); // split by spaces
+
+    filter.$or = tokens.flatMap(token => ([
+        { title: { $regex: token, $options: 'i' } },
+        { description: { $regex: token, $options: 'i' } }
+    ]));
+}
+
 
     // now if we have a userId then
     if(userId){
