@@ -60,7 +60,7 @@ app.use("/api/v1/dashboard",dashboardRouter);
 app.use("/api/v1/health",healthScoreRouter);
 app.use("/api/v1/message",messageRouter);
 app.use("/api/v1/notification",notificationRouter);
-app.use("api/v1/audio",audioRouter);
+app.use("/api/v1/audio",audioRouter);
 
 
 export {app};
