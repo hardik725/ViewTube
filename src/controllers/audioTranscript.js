@@ -15,7 +15,7 @@ const uploadAudio = asyncHandler(async (req, res) => {
   if (!audioData) throw new ApiError(400, "No audio file uploaded");
 
 //   Upload to AssemblyAI
-    const uploadResponse = await axios.post(`${baseUrl}/v2/upload`, audioData, {
+    const uploadRes = await axios.post(`${baseUrl}/v2/upload`, audioData, {
         headers,
     });
 
