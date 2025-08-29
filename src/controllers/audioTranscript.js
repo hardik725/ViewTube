@@ -9,7 +9,7 @@ const headers = {
 };
 
 const uploadAudio = asyncHandler(async (req, res) => {
-  const audioBuffer = req.file?.buffer;
+  const audioBuffer = req.file?.path;
   if (!audioBuffer) throw new ApiError(400, "No audio file uploaded");
 
   // Upload to AssemblyAI
